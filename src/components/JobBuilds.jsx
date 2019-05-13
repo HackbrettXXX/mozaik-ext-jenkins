@@ -1,5 +1,4 @@
 import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
-import {ListenerMixin} from 'reflux';
 import JobBuild from './JobBuild.jsx';
 import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';
 

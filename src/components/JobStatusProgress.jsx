@@ -1,6 +1,5 @@
 import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
 import moment from 'moment';
-import {ListenerMixin} from 'reflux';
 import {getBuildStatus} from './util';
 import compact from 'lodash/compact';
 import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';

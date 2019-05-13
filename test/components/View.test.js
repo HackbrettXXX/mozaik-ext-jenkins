@@ -60,7 +60,7 @@ test.before('before', t => {
     mockery.enable({
         warnOnUnregistered: false
     });
-    mockery.registerMock('mozaik/browser', {
+    mockery.registerMock('@mozaik/ui', {
         Mixin: { ApiConsumer: {} }
     });
 
@@ -68,7 +68,7 @@ test.before('before', t => {
 });
 
 test.after('after', t => {
-    mockery.deregisterMock('mozaik/browser');
+    mockery.deregisterMock('@mozaik/ui');
     mockery.disable();
 });
 
