@@ -1,40 +1,91 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
-import moment                          from 'moment';
-import reactMixin                      from 'react-mixin';
-import { ListenerMixin }               from 'reflux';
-import Mozaik                          from 'mozaik/browser';
-import { getBuildStatus }              from './util';
-import JobStatusPreviousBuild          from './JobStatusPreviousBuild.jsx';
+import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
+import moment from 'moment';
+import {getBuildStatus} from './util';
+import JobStatusPreviousBuild from './JobStatusPreviousBuild.jsx';
+import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';
+import styled, {withTheme} from 'styled-components';
+import {darken} from 'polished';
+import '@fortawesome/fontawesome-free/css/all.css';
 
+const Status = styled.div`
+display: flex;
+width: 100%;
+height: 100%;
+text-align: center;
+
+background-color: ${props => {
+    const {builds} = props;
+    if (builds.length > 0) {
+        return props.theme.colors[getBuildStatus(builds[0]).toLowerCase()];
+    } else {
+        return props.theme.colors.unknown;
+    }
+}}
+`;
+
+const JobStatusCurrent = styled.div`
+width: 100%;
+height: 100%;
+position: absolute;
+top: calc(50% - 70px);
+color: ${props => props.theme.colors.textHighlight};
+`;
+
+const JobStatusCurrentStatus = styled.a`
+font-size: 36px;
+line-height: 45px;
+font-weight: bold;
+text-decoration: none !important;
+`;
+
+const JobStatusCurrentTime = styled.time`
+font-size: 13px:
+color: ${props => darken(20, props.theme.colors.textHighlight)};
+`;
+
+const JobStatusCurrentStatus2 = styled.a`
+font-size: 28px;
+line-height: 32px;
+
+color: ${props => {
+    const {builds} = props;
+    if (builds.length > 0) {
+        return props.theme.colors[getBuildStatus(builds[0]).toLowerCase()];
+    } else {
+        return props.theme.colors.unknown;
+    }
+}}
+`;
 
 class JobStatus extends Component {
     constructor(props) {
         super(props);
-
-        this.state = { builds: [] };
     }
 
-    getApiRequest() {
-        const { job, layout } = this.props;
-
+    static getApiRequest({ job, layout }) {
         return {
             id:     `jenkins.job.${job}`,
             params: { job, layout }
         };
     }
 
-    onApiData(builds) {
-        this.setState({ builds });
+    getBuilds() {
+        if (this.props.apiData) {
+            return this.props.apiData.builds;
+        } else {
+            return [];
+        }
     }
+
 
     render() {
         const { job, layout, title } = this.props;
-        const { builds }             = this.state;
+        const builds                 = this.getBuilds();
 
         let currentNode  = null;
         let previousNode = null;
         let statusClasses;
-        let iconClasses = 'fa fa-close';
+        let iconClasses = 'far fa-close';
 
         const finalTitle = title || `Jenkins job ${ job }`;
 
@@ -42,31 +93,29 @@ class JobStatus extends Component {
             if (builds.length > 0) {
                 const currentBuild = builds[0];
                 if (currentBuild.result === 'SUCCESS') {
-                    iconClasses = 'fa fa-check';
+                    iconClasses = 'fas fa-check';
                 }
 
-                statusClasses = `widget__body__colored jenkins__view__job__build__colored_status--${ getBuildStatus(currentBuild).toLowerCase() }`;
-
                 currentNode = (
-                    <div className="jenkins__job-status__current">
+                    <JobStatusCurrent>
                         Build #{currentBuild.number}<br />
-                        <a className="jenkins__job-status__current__status" href={currentBuild.url}>
+                        <JobStatusCurrentStatus href={currentBuild.url}>
                             {finalTitle}&nbsp;
                             <i className={iconClasses}/>
-                        </a><br/>
-                        <time className="jenkins__job-status__current__time">
-                            <i className="fa fa-clock-o"/>&nbsp;
+                        </JobStatusCurrentStatus><br/>
+                        <JobStatusCurrentTime>
+                            <i className="far fa-clock"/>&nbsp;
                             {moment(currentBuild.timestamp, 'x').fromNow()}
-                        </time>
-                    </div>
+                        </JobStatusCurrentTime>
+                    </JobStatusCurrent>
                 );
 
             }
 
             return (
-                <div className={statusClasses}>
-                    {currentNode}
-                </div>
+                <Widget>
+                    <Status builds={builds}>{currentNode}</Status>
+                </Widget>
             );
         }
 
@@ -76,20 +125,18 @@ class JobStatus extends Component {
                 iconClasses = 'fa fa-check';
             }
 
-            statusClasses = `jenkins__job-status__current__status jenkins__job-status__current__status--${ getBuildStatus(currentBuild).toLowerCase() }`;
-
             currentNode = (
-                <div className="jenkins__job-status__current">
+                <JobStatusCurrent>
                     Build #{currentBuild.number}<br />
-                    <a className={statusClasses} href={currentBuild.url}>
+                    <JobStatusCurrentStatus2 href={currentBuild.url}>
                         {currentBuild.result}&nbsp;
                         <i className={iconClasses} />
-                    </a><br/>
-                    <time className="jenkins__job-status__current__time">
+                    </JobStatusCurrentStatus2><br/>
+                    <JobStatusCurrentTime>
                         <i className="fa fa-clock-o" />&nbsp;
                         {moment(currentBuild.timestamp, 'x').fromNow()}
-                    </time>
-                </div>
+                    </JobStatusCurrentTime>
+                </JobStatusCurrent>
             );
 
             if (builds.length > 1) {
@@ -98,34 +145,21 @@ class JobStatus extends Component {
         }
 
         return (
-            <div>
-                <div className="widget__header">
-                    {finalTitle}
-                    <i className="fa fa-bug" />
-                </div>
-                <div className="widget__body">
+            <Widget>
+                <WidgetHeader title={<span>{finalTitle}<i className="fa fa-bug" /></span>} />
+                <WidgetBody>
                     {currentNode}
                     {previousNode}
-                </div>
-            </div>
+                </WidgetBody>
+            </Widget>
         );
     }
 }
 
 JobStatus.displayName = 'JobStatus';
 
-JobStatus.propTypes = {
-    job:    PropTypes.string.isRequired,
-    layout: PropTypes.string.isRequired,
-    title:  PropTypes.string
-};
-
 JobStatus.defaultProps = {
     layout: 'default'
 };
 
-reactMixin(JobStatus.prototype, ListenerMixin);
-reactMixin(JobStatus.prototype, Mozaik.Mixin.ApiConsumer);
-
-
-export default JobStatus;
+export default withTheme(JobStatus);

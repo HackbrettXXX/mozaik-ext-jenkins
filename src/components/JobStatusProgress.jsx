@@ -1,10 +1,49 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
-import moment                          from 'moment';
-import reactMixin                      from 'react-mixin';
-import { ListenerMixin }               from 'reflux';
-import Mozaik                          from 'mozaik/browser';
-import { getBuildStatus }              from './util';
-import compact                         from 'lodash/compact';
+import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
+import moment from 'moment';
+import {ListenerMixin} from 'reflux';
+import {getBuildStatus} from './util';
+import compact from 'lodash/compact';
+import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';
+import styled from 'styled-components';
+import {darken} from 'polished';
+
+const BodyColored = styled.div`
+display: flex;
+width: 100%;
+height: 100%;
+text-align: center;
+
+font-size: 1.6em;
+background-color: ${props => {
+    const { currentBuild, previousBuild } = JobStatusProgress.getBuilds(props);
+    const status = (currentBuild.building ? getBuildStatus(previousBuild) : getBuildStatus(currentBuild)).toLowerCase();
+    return props.theme.colors[status];
+}}
+`;
+
+const JobStatusCurrent = styled.div`
+margin: 40px 0 0 50px;
+`;
+
+const JobStatusCurrentStatus = styled.a`
+font-size: 28px;
+line-height: 32px;
+`;
+
+const ProgressNumber = styled.span`
+font-size: 70%;
+`;
+
+const ProgressBar = styled.div`
+border: 0.25em solid $main-txt-color;
+margin: 8px 0;
+`;
+
+const JobStatusCurrentTime = styled.time`
+font-size: 13px:
+color: ${props => darken(20, props.theme.colors.text)};
+`;
+
 
 class JobStatusProgress extends Component {
 
@@ -14,9 +53,7 @@ class JobStatusProgress extends Component {
         this.state = { previousBuild: {}, currentBuild: {} };
     }
 
-    getApiRequest() {
-        const { job } = this.props;
-
+    static getApiRequest({ job }) {
         return {
             id:     `jenkins.job.${job}`,
             params: { job }
@@ -28,17 +65,21 @@ class JobStatusProgress extends Component {
         this.setState({ currentBuild, previousBuild });
     }
 
+    static getBuilds(props) {
+        if (props.apiData) {
+            let [currentBuild = {}, previousBuild = {}] = props.apiData.builds;
+            return { currentBuild, previousBuild };
+        } else {
+            return { currentBuild: {}, previousBuild: {} };
+        }
+    }
+
     render() {
         const { job } = this.props;
-        const { currentBuild, previousBuild } = this.state;
+        const { currentBuild, previousBuild } = JobStatusProgress.getBuilds(this.props);
         const currentStatus = getBuildStatus(currentBuild);
         const previousStatus = getBuildStatus(previousBuild);
         const title = this.props.title || `Jenkins job ${ job }`;
-
-        const classList = [
-            'widget__body__colored',
-            `jenkins__view__job__build__colored_status--${ (currentBuild.building ? previousStatus : currentStatus).toLowerCase() }`
-        ];
 
         const iconClassList = [
             'fa',
@@ -58,35 +99,31 @@ class JobStatusProgress extends Component {
         };
 
         return (
-            <div className={compact(classList).join(' ')}>
-                <div className="jenkins__job-status__current">
-                    Build #{currentBuild.number}<br />
-                    <a className="jenkins__job-status__current__status" href={currentBuild.url}>
-                        {title}&nbsp;<br />
-                        <i className={compact(iconClassList).join(' ')}/>&nbsp;
-                        <span className="jenkins__job-status__current__progress-number">
-                            {progress < 100 && `${Math.round(progress)}%`}
-                        </span>
-                    </a>
-                    {progress < 100 && <div className="jenkins__job-status__current__progress-bar" style={progressStyle}/>}
-                    <time className="jenkins__job-status__current__time">
-                        <i className="fa fa-clock-o"/>&nbsp;
-                        {moment(currentBuild.timestamp, 'x').fromNow()}
-                    </time>
-                </div>
-            </div>
+            <Widget>
+                <WidgetBody>
+                    <BodyColored>
+                        <JobStatusCurrent>
+                            Build #{currentBuild.number}<br />
+                            <JobStatusCurrentStatus href={currentBuild.url}>
+                                {title}&nbsp;<br />
+                                <i className={compact(iconClassList).join(' ')}/>&nbsp;
+                                <ProgressNumber>
+                                    {progress < 100 && `${Math.round(progress)}%`}
+                                </ProgressNumber>
+                            </JobStatusCurrentStatus>
+                            {progress < 100 && <ProgressBar style={progressStyle}/>}
+                            <JobStatusCurrentTime>
+                                <i className="fa fa-clock-o"/>&nbsp;
+                                {moment(currentBuild.timestamp, 'x').fromNow()}
+                            </JobStatusCurrentTime>
+                        </JobStatusCurrent>
+                    </BodyColored>
+                </WidgetBody>
+            </Widget>
         );
     }
 }
 
 JobStatusProgress.displayName = 'JobStatusProgress';
-
-JobStatusProgress.propTypes = {
-    job:   PropTypes.string.isRequired,
-    title: PropTypes.string
-};
-
-reactMixin(JobStatusProgress.prototype, ListenerMixin);
-reactMixin(JobStatusProgress.prototype, Mozaik.Mixin.ApiConsumer);
 
 export default JobStatusProgress;

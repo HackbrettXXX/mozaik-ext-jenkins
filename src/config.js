@@ -1,4 +1,4 @@
-import convict from 'convict';
+const convict = require('convict');
 
 const config = convict({
     jenkins: {
@@ -30,4 +30,4 @@ const config = convict({
 });
 
 
-export default config;
+module.exports = config;

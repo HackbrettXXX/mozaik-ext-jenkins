@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 import moment                          from 'moment';
 require('moment-duration-format');
 
@@ -20,10 +20,5 @@ class ViewJobBuildDuration extends Component {
 }
 
 ViewJobBuildDuration.displayName = 'ViewJobBuildDuration';
-
-ViewJobBuildDuration.propTypes = {
-    build: PropTypes.object
-};
-
 
 export default ViewJobBuildDuration;

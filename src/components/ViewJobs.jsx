@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component} from 'react'; // eslint-disable-line no-unused-vars
 import ViewJob                         from './ViewJob.jsx';
 
 class ViewJobs extends Component {
@@ -26,10 +26,5 @@ class ViewJobs extends Component {
 }
 
 ViewJobs.displayName = 'ViewJobs';
-
-ViewJobs.propTypes = {
-    jobs: PropTypes.array.isRequired
-};
-
 
 export default ViewJobs;

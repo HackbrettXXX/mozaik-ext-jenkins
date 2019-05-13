@@ -1,15 +1,12 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
-import reactMixin                      from 'react-mixin';
-import { ListenerMixin }               from 'reflux';
-import Mozaik                          from 'mozaik/browser';
-import JobBuild                        from './JobBuild.jsx';
+import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
+import {ListenerMixin} from 'reflux';
+import JobBuild from './JobBuild.jsx';
+import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';
 
 
 class JobBuilds extends Component {
     constructor(props) {
         super(props);
-
-        this.state = { builds: [] };
     }
 
     getApiRequest() {
@@ -21,46 +18,39 @@ class JobBuilds extends Component {
         };
     }
 
-    onApiData(builds) {
-        this.setState({ builds });
+    static getApiRequest({job}) {
+        return { id: `jenkins.jobs${job}`, params: { job } };
+    }
+
+    getBuilds() {
+        if (this.props.apiData) {
+            return this.props.apiData.builds;
+        } else {
+            return [];
+        }
     }
 
     render() {
-        const { builds } = this.state;
+        const builds = this.getBuilds();
         const { title }  = this.props;
 
         return (
-            <div>
-                <div className="widget__header">
-                    {title}
-                    <span className="widget__header__count">
-                        {builds.length}
-                    </span>
-                    <i className="fa fa-bug" />
-                </div>
-                <div className="widget__body">
+            <Widget>
+                <WidgetHeader title={<span>{title}<span>builds.length</span><i className="fa fa-bug" /></span>} />
+                <WidgetBody>
                     {builds.map(build => (
                         <JobBuild key={build.number} build={build} />
                     ))}
-                </div>
-            </div>
+                </WidgetBody>
+            </Widget>
         );
     }
 }
 
 JobBuilds.displayName = 'JobBuilds';
 
-JobBuilds.propTypes = {
-    title: PropTypes.string.isRequired,
-    job:   PropTypes.string.isRequired
-};
-
 JobBuilds.defaultProps = {
     title: 'Jenkins job builds'
 };
-
-reactMixin(JobBuilds.prototype, ListenerMixin);
-reactMixin(JobBuilds.prototype, Mozaik.Mixin.ApiConsumer);
-
 
 export default JobBuilds;

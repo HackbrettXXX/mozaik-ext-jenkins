@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 
 
 class ViewJobHealthReport extends Component {
@@ -14,10 +14,5 @@ class ViewJobHealthReport extends Component {
 }
 
 ViewJobHealthReport.displayName = 'ViewJobHealthReport';
-
-ViewJobHealthReport.propTypes = {
-    job: PropTypes.object.isRequired
-};
-
 
 export default ViewJobHealthReport;

@@ -1,51 +1,41 @@
-import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
-import reactMixin           from 'react-mixin';
-import { ListenerMixin }    from 'reflux';
-import Mozaik               from 'mozaik/browser';
-import JobItem              from './JobItem.jsx';
+import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
+import JobItem from './JobItem.jsx';
+import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';
 
 
 class Jobs extends Component {
     constructor(props) {
         super(props);
-
-        this.state = { jobs: [] };
     }
 
-    getApiRequest() {
+    static getApiRequest() {
         return { id: 'jenkins.jobs' };
     }
 
-    onApiData(jobs) {
-        this.setState({ jobs });
+    getJobs() {
+        if (this.props.apiData) {
+            return this.props.apiData.jobs;
+        } else {
+            return [];
+        }
     }
 
     render() {
-        const { jobs } = this.state;
+        const jobs = this.getJobs();
 
         return (
-            <div>
-                <div className="widget__header">
-                    Jenkins jobs
-                    <span className="widget__header__count">
-                        {jobs.length}
-                    </span>
-                    <i className="fa fa-bug" />
-                </div>
-                <div className="widget__body">
+            <Widget>
+                <WidgetHeader title={<span>Jenkins jobs<span>{jobs.length}</span><i className="fa fa-bug" /></span>} />
+                <WidgetBody>
                     {jobs.map((job, index) => (
                         <JobItem key={index} job={job} />
                     ))}
-                </div>
-            </div>
+                </WidgetBody>
+            </Widget>
         );
     }
 }
 
 Jobs.displayName = 'Jobs';
-
-reactMixin(Jobs.prototype, ListenerMixin);
-reactMixin(Jobs.prototype, Mozaik.Mixin.ApiConsumer);
-
 
 export default Jobs;

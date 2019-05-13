@@ -1,8 +1,8 @@
-import request from 'superagent';
-import config  from './config';
-import Promise from 'bluebird';
-import chalk   from 'chalk';
-import fs      from 'fs';
+const request = require('superagent');
+const config  = require('./config');
+const Promise = require('bluebird');
+const chalk   = require('chalk');
+const fs      = require('fs');
 require('superagent-bluebird-promise');
 
 
@@ -49,7 +49,6 @@ const client = mozaik => {
                 config.get('jenkins.basicAuthUser'),
                 config.get('jenkins.basicAuthPassword')
             )
-            .promise()
             .catch(error => {
                 mozaik.logger.error(chalk.red(`[jenkins] ${ error.error }`));
                 throw error;
@@ -66,7 +65,7 @@ const client = mozaik => {
 
         job(params) {
             return buildRequest(`/job/${ params.job }/api/json?pretty=true&depth=10&tree=builds[number,estimatedDuration,duration,result,builtOn,timestamp,id,building,url]`)
-                .then(res => res.body.builds)
+                .then(res => ({builds: res.body.builds}))
             ;
         },
 
@@ -111,4 +110,4 @@ const client = mozaik => {
 };
 
 
-export default client;
+module.exports = client;

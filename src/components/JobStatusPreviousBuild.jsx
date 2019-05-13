@@ -1,30 +1,34 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 import moment                          from 'moment';
 import { getBuildStatus }              from './util';
+import styled from 'styled-components';
+import {darken} from 'polished';
+
+const JobStatusPrevious = styled.div`
+position: absolute;
+left: 0;
+bottom: 10px;
+height: 24px;
+line-height: 24px;
+padding: 0 15px;
+font-size: 13px;
+color: ${props => darken(20, props.theme.colors.text)};
+`;
 
 class JobStatusPreviousBuild extends Component {
     render() {
         const { build } = this.props;
 
         return (
-            <div className="jenkins__job-status__previous">
+            <JobStatusPrevious>
                 previous status (#{build.number}) were&nbsp;
                 {getBuildStatus(build)}&nbsp;
                 {moment(build.timestamp, 'x').fromNow()}
-            </div>
+            </JobStatusPrevious>
         );
     }
 }
 
 JobStatusPreviousBuild.displayName = 'JobStatusPreviousBuild';
-
-JobStatusPreviousBuild.propTypes = {
-    build: PropTypes.shape({
-        number:    PropTypes.number.isRequired,
-        result:    PropTypes.string.isRequired,
-        timestamp: PropTypes.number.isRequired
-    }).isRequired
-};
-
 
 export default JobStatusPreviousBuild;

@@ -1,36 +1,35 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 import moment                          from 'moment';
 import { getBuildStatus }              from './util';
+import styled from 'styled-components';
+import { darken } from 'polished';
 
+const ListItem = styled.div``
 
+const Time = styled.time`
+font-size: 12px;
+display: inline-block;
+color: ${props => darken(20, props.theme.colors.text)};
+`
 class JobBuild extends Component {
     render() {
         const { build } = this.props;
 
-        const classes = `list__item list__item--with-status list__item--with-status--${ getBuildStatus(build).toLowerCase() }`;
+        // const classes = `list__item list__item--with-status list__item--with-status--${ getBuildStatus(build).toLowerCase() }`;
 
         return (
-            <div className={classes}>
+            <ListItem>
                 #{build.number} {getBuildStatus(build)}&nbsp;
-                <time className="list__item__time">
+                <Time>
                     <i className="fa fa-clock-o" />&nbsp;
                     {moment(build.timestamp, 'x').fromNow()}
-                </time>
-            </div>
+                </Time>
+            </ListItem>
         );
     }
 }
 
 JobBuild.displayName = 'JobBuild';
-
-JobBuild.propTypes = {
-    build: PropTypes.shape({
-        building:  PropTypes.bool.isRequired,
-        number:    PropTypes.number.isRequired,
-        result:    PropTypes.string.isRequired,
-        timestamp: PropTypes.number.isRequired
-    }).isRequired
-};
 
 
 export default JobBuild;

@@ -1,28 +1,27 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
-import reactMixin                      from 'react-mixin';
-import { ListenerMixin }               from 'reflux';
-import Mozaik                          from 'mozaik/browser';
-import ViewJobs                        from './ViewJobs.jsx';
+import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
+import {ListenerMixin} from 'reflux';
+import ViewJobs from './ViewJobs.jsx';
+import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';
 
 
 class View extends Component {
     constructor(props) {
         super(props);
-
-        this.state = { view: null };
     }
 
-    getApiRequest() {
-        const { view } = this.props;
-
+    static getApiRequest({ view }) {
         return {
             id:     `jenkins.view.${view}`,
             params: { view }
         };
     }
 
-    onApiData(view) {
-        this.setState({ view });
+    getView() {
+        if (this.props.apiData) {
+            return this.props.apiData.view;
+        } else {
+            return { view: null };
+        }
     }
 
     render() {
@@ -36,33 +35,23 @@ class View extends Component {
         }
 
         let jobsNode = null;
-        if (this.state.view) {
-            jobsNode = <ViewJobs jobs={this.state.view.jobs} />;
+
+        const view = this.getView();
+        if (view) {
+            jobsNode = <ViewJobs jobs={view.jobs} />;
         }
 
         return (
-            <div>
-                <div className="widget__header">
-                    {titleNode}
-                    <i className="fa fa-bug" />
-                </div>
-                <div className="widget__body">
+            <Widget>
+                <WidgetHeader title={<span>{titleNode}<i className="fa fa-bug"/></span>}/>
+                <WidgetBody>
                     {jobsNode}
-                </div>
-            </div>
+                </WidgetBody>
+            </Widget>
         );
     }
 }
 
 View.displayName = 'View';
-
-View.propTypes = {
-    view:  PropTypes.string.isRequired,
-    title: PropTypes.string
-};
-
-reactMixin(View.prototype, ListenerMixin);
-reactMixin(View.prototype, Mozaik.Mixin.ApiConsumer);
-
 
 export default View;

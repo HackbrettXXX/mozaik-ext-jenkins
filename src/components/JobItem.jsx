@@ -1,6 +1,29 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 import moment                          from 'moment';
+import styled from 'styled-components';
+import {darken} from 'polished';
 
+const BuildNumber = styled.span`
+color: ${props => darken(20, props.theme.colors.text)};
+margin-right: 7px;
+`;
+
+const Job = styled.div`
+position: relative;
+padding: 7px 15px 7px 35px;
+
+&:before {
+  content: " ";
+  display: block;
+  width:  12px;
+  height: 12px;
+  position: absolute;
+  top:  14px;
+  left: 12px;
+  border-radius: 100%;
+  background-color: ${props => props.theme.colors(props.job.lastBuild ? props.job.lastBuild.result.toLowerCase() : 'unknown')};
+}
+`;
 
 class JobItem extends Component {
     render() {
@@ -12,9 +35,9 @@ class JobItem extends Component {
 
         if (job.lastBuild) {
             buildNumber = (
-                <span className="jenkins__job__number">
+                <BuildNumber>
                     #{job.lastBuild.number}
-                </span>
+                </BuildNumber>
             );
 
             if (job.lastBuild.result === 'SUCCESS') {
@@ -28,22 +51,15 @@ class JobItem extends Component {
             fromNow = <time>{moment(job.lastBuild.timestamp).fromNow()}</time>;
         }
 
-        const classes = `jenkins__job jenkins__job--${job.lastBuild ? job.lastBuild.result.toLowerCase() : 'unknown'}`;
-
         return (
-            <div className={classes}>
+            <Job>
                 {job.name} {buildNumber}<br />
                 {fromNow}
-            </div>
+            </Job>
         );
     }
 }
 
 JobItem.displayName = 'JobItem';
-
-JobItem.propTypes = {
-    job: PropTypes.object.isRequired
-};
-
 
 export default JobItem;

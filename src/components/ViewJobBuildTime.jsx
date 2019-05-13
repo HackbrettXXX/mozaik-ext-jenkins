@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
+import React, { Component } from 'react'; // eslint-disable-line no-unused-vars
 import moment                          from 'moment';
 
 
@@ -19,10 +19,5 @@ class ViewJobBuildTime extends Component {
 }
 
 ViewJobBuildTime.displayName = 'ViewJobBuildTime';
-
-ViewJobBuildTime.propTypes = {
-    build: PropTypes.object
-};
-
 
 export default ViewJobBuildTime;

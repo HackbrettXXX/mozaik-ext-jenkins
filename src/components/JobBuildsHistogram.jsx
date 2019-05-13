@@ -1,35 +1,30 @@
-import React, { Component, PropTypes } from 'react'; // eslint-disable-line no-unused-vars
-import reactMixin                      from 'react-mixin';
-import { ListenerMixin }               from 'reflux';
-import Mozaik                          from 'mozaik/browser';
-const { BarChart }                     = Mozaik.Component;
+import React, {Component} from 'react'; // eslint-disable-line no-unused-vars
+import { BarChart } from '@mozaik/ui';
 
 
 class JobBuildsHistogram extends Component {
     constructor(props) {
         super(props);
-
-        this.state = { builds: [] };
     }
 
-    getApiRequest() {
-        const { job } = this.props;
-
+    static getApiRequest({job}) {
         return {
             id:     `jenkins.job.${ job }`,
             params: { job }
         };
     }
 
-    onApiData(builds) {
-        const { cap } = this.props;
-
-        this.setState({ builds: builds.slice(0, cap).reverse() });
+    getBuilds() {
+        if (this.props.apiData) {
+            return this.props.apiData.builds;
+        } else {
+            return [];
+        }
     }
 
     render() {
         const { job }    = this.props;
-        const { builds } = this.state;
+        const builds = this.getBuilds();
 
         // converts to format required by BarChart component
         const data = builds.map(build => ({
@@ -64,16 +59,8 @@ class JobBuildsHistogram extends Component {
 
 JobBuildsHistogram.displayName = 'JobBuildsHistogram';
 
-JobBuildsHistogram.propTypes = {
-    job: PropTypes.string.isRequired,
-    cap: PropTypes.number.isRequired
-};
-
 JobBuildsHistogram.defaultProps = {
     cap: 50
 };
-
-reactMixin(JobBuildsHistogram.prototype, ListenerMixin);
-reactMixin(JobBuildsHistogram.prototype, Mozaik.Mixin.ApiConsumer);
 
 export { JobBuildsHistogram as default };
