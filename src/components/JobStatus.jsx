@@ -85,7 +85,7 @@ class JobStatus extends Component {
         let currentNode  = null;
         let previousNode = null;
         let statusClasses;
-        let iconClasses = 'far fa-close';
+        let iconClasses = 'fas fa-times';
 
         const finalTitle = title || `Jenkins job ${ job }`;
 
