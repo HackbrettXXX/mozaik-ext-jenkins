@@ -9,6 +9,9 @@ import '@fortawesome/fontawesome-free/css/all.css';
 
 const Status = styled.div`
 display: flex;
+flex-direction: column;
+justify-content: center;
+font-size: 15px;
 width: 100%;
 height: 100%;
 text-align: center;
@@ -16,7 +19,11 @@ text-align: center;
 background-color: ${props => {
     const {builds} = props;
     if (builds.length > 0) {
-        return props.theme.colors[getBuildStatus(builds[0]).toLowerCase()];
+        let buildStatus = getBuildStatus(builds[0]).toLowerCase();
+        if (buildStatus === 'unstable') {
+            buildStatus = 'warning';
+        }
+        return props.theme.colors[buildStatus.toLowerCase()];
     } else {
         return props.theme.colors.unknown;
     }
@@ -24,23 +31,18 @@ background-color: ${props => {
 `;
 
 const JobStatusCurrent = styled.div`
-width: 100%;
-height: 100%;
-position: absolute;
-top: calc(50% - 70px);
 color: ${props => props.theme.colors.textHighlight};
 `;
 
 const JobStatusCurrentStatus = styled.a`
-font-size: 36px;
-line-height: 45px;
+font-size: 22px;
+line-height: 22px;
 font-weight: bold;
 text-decoration: none !important;
 `;
 
 const JobStatusCurrentTime = styled.time`
-font-size: 13px:
-color: ${props => darken(20, props.theme.colors.textHighlight)};
+font-size: 13px;
 `;
 
 const JobStatusCurrentStatus2 = styled.a`
@@ -92,7 +94,7 @@ class JobStatus extends Component {
         if (layout === 'bold') {
             if (builds.length > 0) {
                 const currentBuild = builds[0];
-                if (currentBuild.result === 'SUCCESS') {
+                if (currentBuild.result === 'SUCCESS' || currentBuild.result === 'UNSTABLE') {
                     iconClasses = 'fas fa-check';
                 }
 
