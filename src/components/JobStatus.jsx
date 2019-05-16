@@ -4,19 +4,9 @@ import {getBuildStatus} from './util';
 import JobStatusPreviousBuild from './JobStatusPreviousBuild.jsx';
 import {Widget, WidgetHeader, WidgetBody} from '@mozaik/ui';
 import styled, {withTheme} from 'styled-components';
-import {darken} from 'polished';
 import '@fortawesome/fontawesome-free/css/all.css';
 
-const Status = styled.div`
-display: flex;
-flex-direction: column;
-justify-content: center;
-font-size: 15px;
-width: 100%;
-height: 100%;
-text-align: center;
-
-background-color: ${props => {
+function statusColor(props) {
     const {builds} = props;
     if (builds.length > 0) {
         let buildStatus = getBuildStatus(builds[0]).toLowerCase();
@@ -27,22 +17,37 @@ background-color: ${props => {
     } else {
         return props.theme.colors.unknown;
     }
-}}
+}
+
+const Status = styled.div`
+display: flex;
+flex-direction: column;
+justify-content: center;
+font-size: 15px;
+width: 100%;
+height: 100%;
+text-align: center;
+border-bottom: 2px solid ${statusColor};
 `;
 
 const JobStatusCurrent = styled.div`
-color: ${props => props.theme.colors.textHighlight};
+color: ${props => props.theme.colors.text};
 `;
 
 const JobStatusCurrentStatus = styled.a`
-font-size: 22px;
-line-height: 22px;
+font-size: 21px;
+line-height: 21px;
+white-space: nowrap;
 font-weight: bold;
 text-decoration: none !important;
 `;
 
 const JobStatusCurrentTime = styled.time`
 font-size: 13px;
+`;
+
+const StatusIcon = styled.i`
+color: ${statusColor}
 `;
 
 const JobStatusCurrentStatus2 = styled.a`
@@ -101,9 +106,9 @@ class JobStatus extends Component {
                 currentNode = (
                     <JobStatusCurrent>
                         Build #{currentBuild.number}<br />
-                        <JobStatusCurrentStatus href={currentBuild.url}>
+                        <JobStatusCurrentStatus builds={builds} href={currentBuild.url}>
                             {finalTitle}&nbsp;
-                            <i className={iconClasses}/>
+                            <StatusIcon builds={builds} className={iconClasses}/>
                         </JobStatusCurrentStatus><br/>
                         <JobStatusCurrentTime>
                             <i className="far fa-clock"/>&nbsp;
